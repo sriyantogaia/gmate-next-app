@@ -2,11 +2,28 @@ import connect from "../lib/database"
 import {
     objectify,
     getTestSequence,
-    randomGroupKeys
+    randomGroupKeys,
+    groupByKey
+
 } from "gmate"
 
+function CetakSoal ({ soal, kondisi }) {
+    return (
+        <div>
+            { kondisi.seq }
+            <div dangerouslySetInnerHTML={{__html:kondisi.konten }} />
+            <div dangerouslySetInnerHTML={{__html:soal.konten }} />
+            <div dangerouslySetInnerHTML={{__html:soal.a }} />
+            <div dangerouslySetInnerHTML={{__html:soal.b }} />
+            <div dangerouslySetInnerHTML={{__html:soal.c }} />
+            <div dangerouslySetInnerHTML={{__html:soal.d }} />
+            <div dangerouslySetInnerHTML={{__html:soal.e }} />
+        </div>
+    )
+}
+
 export default function Gmate (props) {
-    const soal = props.soalByKey.s15
+    const soal = props.soalByKey.S15
 
     return (
         <div style={{
@@ -16,13 +33,15 @@ export default function Gmate (props) {
             backgroundColor:    "orange"
         }}>
             <h1>tes Gmate {props.dfSoal.length}</h1>
-            <pre>{JSON.stringify(props.leaders)}</pre>
+            {/* <pre>{JSON.stringify(props.leaders)}</pre>
             <p>{soal.konten}</p>
             <p>{soal.a}</p>
             <p>{soal.b}</p>
             <p>{soal.c}</p>
             <p>{soal.d}</p>
-            <p>{soal.e}</p>
+            <p>{soal.e}</p> */}
+
+            <CetakSoal soal={soal} kondisi={props.kondisiByKey[soal.ref]} />
 
         </div>
     )
@@ -44,12 +63,21 @@ export const getServerSideProps = async () => {
     const sekuen = getTestSequence(rs, leaders)
     console.log(sekuen);
 
+    // const groups = await db.all
+
+    const groupKeys = randomGroupKeys (groupByKey(rs), leaders)
+    console.log (groupKeys);
+
+    const rs3 = await db.all("select * from kondisi")
+    const kondisiByKey = objectify (rs3)
+
     return {
         props: {
             dfSoal: rs, 
             leaders,
-            soalByKey 
-            sekuen
+            soalByKey,
+            sekuen,
+            kondisiByKey
         }
     }
 }
